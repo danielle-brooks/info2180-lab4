@@ -1,4 +1,5 @@
 <?php
+header("Access-Control-Allow-Origin: *");
 
 $superheroes = [
   [
@@ -63,10 +64,32 @@ $superheroes = [
   ], 
 ];
 
-?>
+$query = filter_input(INPUT_GET, 'query', FILTER_SANITIZE_STRING);
 
-<ul>
-<?php foreach ($superheroes as $superhero): ?>
-  <li><?= $superhero['alias']; ?></li>
-<?php endforeach; ?>
-</ul>
+if (!$query) {
+    echo "<ul>";
+    foreach ($superheroes as $hero) {
+        echo "<li>" . htmlspecialchars($hero['alias']) . "</li>";
+    }
+    echo "</ul>";
+} else {
+    $found = false;
+    $query = strtolower($query);
+
+    foreach ($superheroes as $hero) {
+        if (strpos(strtolower($hero['alias']), $query) !== false ||
+            strpos(strtolower($hero['name']), $query) !== false) {
+
+            echo "<h3>" . htmlspecialchars($hero['alias']) . "</h3>";
+            echo "<h4>" . htmlspecialchars($hero['name']) . "</h4>";
+            echo "<p>" . htmlspecialchars($hero['biography']) . "</p>";
+            $found = true;
+            break;
+        }
+    }
+
+    if (!$found) {
+        echo "<p><strong>Superhero not found</strong></p>";
+    }
+}
+?>
